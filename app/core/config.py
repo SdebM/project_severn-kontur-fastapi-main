@@ -3,7 +3,7 @@ from functools import lru_cache
 
 class Settings(BaseSettings):
     
-    #Application
+    #Application settings
     APP_NAME: str = "Document Center API"
     APP_VERSION: str = "1.0.0"
     DEBUG: bool = False 
