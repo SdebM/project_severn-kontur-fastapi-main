@@ -1,0 +1,21 @@
+from datetime import datetime, timezone
+from typing import Optional, TYPE_CHECKING
+from enum import Enum
+
+from sqlmodel import SQLModel, Field, Relationship
+
+class Permission(str, Enum):
+    viewer = "viewer"
+    editor = "editor"
+
+
+
+class ProjectAccess(SQLModel, table=True):
+    __tablename__ = "project_accesses"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    project_id: int = Field(foreign_key="projects.id", index=True)
+    user_id: int = Field(foreign_key="users.id", index=True)
+    permission: Permission = Field(default=Permission.viewer)
+    granted_by: int = Field(foreign_key="users.id")
+    created_at: datetime = Field(default_factory=datetime.now(timezone.utc))
