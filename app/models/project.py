@@ -14,6 +14,13 @@ class Project(SQLModel, table=True):
 
     owner: "User" = Relationship(back_populates="owner_projects")
 
+    accesses: list["ProjectAccess"] = Relationship(back_populates="project")
+
+    documents: list["Document"] = Relationship(back_populates="project")
+
+
 
 if TYPE_CHECKING:
     from app.models.user import User
+    from app.models.project_access import ProjectAccess
+    from app.models.document import Document

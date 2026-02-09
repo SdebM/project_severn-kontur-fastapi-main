@@ -20,3 +20,10 @@ class AuditLog(SQLModel, table=True):
     entity_id: Optional[int] = Field(default=None)
     meta: Optional[str] = Field(default=None)
     created_at: datetime = Field(default_factory=datetime.now(timezone.utc), index=True)
+
+
+    user: "User" = Relationship(back_populates="audit_logs")
+
+
+if TYPE_CHECKING:
+    from app.models.user import User

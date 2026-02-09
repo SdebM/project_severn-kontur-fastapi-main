@@ -23,3 +23,23 @@ class Document(SQLModel, table=True):
     updated_by: Optional[int] = Field(default=None, foreign_key="users.id")
     created_at: datetime = Field(default_factory=datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=datetime.now(timezone.utc))
+
+    project: "Project" = Relationship(back_populates="documents")
+
+    creator: "User" = Relationship(
+        back_populates="created_documents",
+        sa_relationship_kwargs={"foreign_keys": "[Document.created_by]"}
+    )
+
+    updater: Optional["User"] = Relationship(
+        back_populates="updated_documents",
+        sa_relationship_kwargs={"foreign_keys": "[Document.updated_by]"}
+    )
+
+    versions: list["DocumentVersion"] = Relationship(back_populates="document")
+
+
+if TYPE_CHECKING:
+    from app.models.project import Project
+    from app.models.user import User
+    from app.models.document_version import DocumentVersion
