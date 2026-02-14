@@ -57,6 +57,68 @@ def decode_access_token(token: str) -> Optional[dict]:
     except JWTError:
         return None
     
+def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)
+):
+    from app.models.user import User
+
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    token = credentials.credentials 
+    payload = decode_access_token(token)
+
+    if payload is None:
+        raise credentials_exception
+    
+    user_id: int = payload.get("user_id")
+
+    if user_id is None:
+        raise credentials_exception
+    
+    session = next(get_session())
+    user = session.get(User, user_id)
+
+    if user is None:
+            raise credentials_exception
+    
+    if not user.is_active:
+        raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="User is deactivated"
+        )
+    
+    return user 
+
+def require_roles(*allowed_roles: str):
+    def role_checker(current_user = Depends(get_current_user)):
+        if current_user.role not in allowed_roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Access denied. Required roles: {', '.join(allowed_roles)}"
+            )
+        return current_user
+    return role_checker
+
+
+def require_admin(current_user = Depends(get_current_user)):
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
+    return current_user
+
+
+
+
+
+    
+    
+    
 
     
     
