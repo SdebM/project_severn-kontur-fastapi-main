@@ -38,6 +38,11 @@ def is_project_owner_or_admin(session: Session, user: User, project_id: int) -> 
 def can_manage_project(session: Session, user: User, project_id: int) -> bool:
     return is_project_owner_or_admin(session, user, project_id)
 
+def can_edit_project(session: Session, user: User, project_id: int) -> bool:
+    permission = get_user_project_permission(session, user, project_id)
+    return permission == Permission.editor
+
+
 
 
 
