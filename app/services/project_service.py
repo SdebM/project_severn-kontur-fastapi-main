@@ -114,6 +114,36 @@ class ProjectService:
         
         return project
     
+    def delete_project(self, project_id: int, user: User) -> None:
+        project = self.get_by_id(project_id)
+        if not project:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Project not found"
+            )
+        
+        if not can_manage_project(self.session, user, project_id):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only admin or project owner can delete"
+            )
+        
+        project_title = project.title
+        self.session.delete(project)
+        self.session.commit()
+
+        log_action(
+            session=self.session,
+            user_id=user.id,
+            action="delete_project",
+            entity_type=EntityType.project,
+            entity_id=project_id,
+            meta={"title": project_title}
+        )
+
+        
+
+    
     
 
 
